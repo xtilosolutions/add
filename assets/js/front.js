@@ -621,22 +621,20 @@ jQuery( document ).ready(
 		moveAddToCartButton				= function() {
 			var button = $( wapoDOM.popupContent ).find( '.single_add_to_cart_button' );
 			if ( button && button.length ) {
-				// Check if we're in a modal context (Quick View)
-				if ( $( wapoDOM.cartPopup ).hasClass('open') || $( wapoDOM.cartPopup ).length ) {
-					// Store original button text for later use
-					if (!button.data('original-text')) {
-						button.data('original-text', button.text().trim());
-					}
-					
-					// Restructure button content for modal
-					var originalText = button.data('original-text') || button.text().trim();
-					var buttonContent = '<span class="yith-wapo-button-text">' + originalText + '</span><span class="yith-wapo-button-total"></span>';
-					button.html(buttonContent);
-					button.addClass('yith-wapo-modal-button');
-					
-					// Update the button with current total
-					updateModalButtonTotal();
+				// Since this function is called for modal context (Quick View), always apply the styling
+				// Store original button text for later use
+				if (!button.data('original-text')) {
+					button.data('original-text', button.text().trim());
 				}
+				
+				// Restructure button content for modal
+				var originalText = button.data('original-text') || button.text().trim();
+				var buttonContent = '<span class="yith-wapo-button-text">' + originalText + '</span><span class="yith-wapo-button-total"></span>';
+				button.html(buttonContent);
+				button.addClass('yith-wapo-modal-button');
+				
+				// Update the button with current total
+				updateModalButtonTotal();
 				
 				$( wapoDOM.popupFooter ).find( '.yith-wapo-add-to-cart' ).prepend( button );
 			}
