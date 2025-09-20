@@ -1051,5 +1051,24 @@ tr.cart_item.yith-wapo-product-as-item td img{
   }
 }
 
+/* Quick View Modal Button Styling */
+.yith-wapo-modal-button {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.yith-wapo-modal-button .yith-wapo-button-text {
+  flex: 1;
+  text-align: left;
+}
+
+.yith-wapo-modal-button .yith-wapo-button-total {
+  flex: 0 0 auto;
+  text-align: right;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
 
 /** MEDIA QUERY - END */

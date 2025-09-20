@@ -604,6 +604,11 @@ jQuery( document ).ready(
 							// Open modal at the end of process.
 							pa_modal.addClass('open');
 							$( 'body' ).addClass( 'yith-wapo-modal-is-open' );
+							
+							// Small delay to ensure DOM is ready, then update button total
+							setTimeout(function() {
+								updateModalButtonTotal();
+							}, 100);
 						}
 
 						$( wapoDOM.popupWrapper ).unblock({ message: null });
@@ -615,8 +620,50 @@ jQuery( document ).ready(
 
 		moveAddToCartButton				= function() {
 			var button = $( wapoDOM.popupContent ).find( '.single_add_to_cart_button' );
-			if ( button ) {
+			if ( button && button.length ) {
+				// Check if we're in a modal context (Quick View)
+				if ( $( wapoDOM.cartPopup ).hasClass('open') || $( wapoDOM.cartPopup ).length ) {
+					// Store original button text for later use
+					if (!button.data('original-text')) {
+						button.data('original-text', button.text().trim());
+					}
+					
+					// Restructure button content for modal
+					var originalText = button.data('original-text') || button.text().trim();
+					var buttonContent = '<span class="yith-wapo-button-text">' + originalText + '</span><span class="yith-wapo-button-total"></span>';
+					button.html(buttonContent);
+					button.addClass('yith-wapo-modal-button');
+					
+					// Update the button with current total
+					updateModalButtonTotal();
+				}
+				
 				$( wapoDOM.popupFooter ).find( '.yith-wapo-add-to-cart' ).prepend( button );
+			}
+		}
+
+		updateModalButtonTotal = function() {
+			var button = $( wapoDOM.cartPopup ).find( '.single_add_to_cart_button.yith-wapo-modal-button' );
+			var totalElement = $( wapoDOM.totalsBox.orderPrice );
+			
+			if ( button && button.length && totalElement && totalElement.length ) {
+				var totalText = totalElement.text().trim();
+				
+				// Format the total as requested ($ symbol before, thousands with comma)
+				if ( totalText && totalText !== '' ) {
+					// Extract the formatted price from the total element
+					var priceMatch = totalText.match(/[\d,.]+/);
+					if ( priceMatch ) {
+						var numericValue = priceMatch[0];
+						
+						// Ensure proper formatting: $ symbol followed by number with comma thousands separator
+						// Replace dots with commas for Spanish format (e.g., 5.990 becomes 5,990)
+						var formattedNumber = numericValue.replace(/\./g, ',');
+						var formattedTotal = yith_wapo.currency_symbol + ' ' + formattedNumber;
+						
+						button.find( '.yith-wapo-button-total' ).text( formattedTotal );
+					}
+				}
 			}
 		}
 
@@ -1396,6 +1443,9 @@ jQuery( document ).ready(
 				$(wapoDOM.totalsBox.optionsPrice).html(totalOptionsPriceFormatted + ' ' + yith_wapo.priceSuffix );
 				$(wapoDOM.totalsBox.orderPrice).html(totalOrderPriceFormatted + ' ' + yith_wapo.priceSuffix );
 
+				// Update modal button total if in Quick View
+				updateModalButtonTotal();
+
 				var response = {
 					'order_price_suffix': totalOrderPriceFormatted,
 					'order_price_raw' : parseInt( $(wapoDOM.addonsContainer).attr('data-default-product-price') ) + parseInt( totalOptionsPrice ),
@@ -1474,6 +1524,9 @@ jQuery( document ).ready(
 								$(wapoDOM.totalsBox.productPrice).html(totalProductPrice);
 								$(wapoDOM.totalsBox.optionsPrice).html(totalOptionsPriceHTML);
 								$(wapoDOM.totalsBox.orderPrice).html(totalOrderPriceHTML);
+
+								// Update modal button total if in Quick View
+								updateModalButtonTotal();
 
 								$(wapoDOM.addonsContainer).attr('data-order-price', totalOrderPrice);
 
